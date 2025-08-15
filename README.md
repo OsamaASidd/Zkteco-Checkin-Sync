@@ -32,7 +32,7 @@ This Frappe/ERPNext app automatically synchronizes employee check-in/check-out t
 cd /path/to/your/bench
 
 # Get the app
-bench get-app https://github.com/your-username/zkteco_checkins_sync
+bench get-app https://github.com/OsamaASidd/zkteco_checkins_sync
 
 # Install on your site
 bench --site your-site.com install-app zkteco_checkins_sync
