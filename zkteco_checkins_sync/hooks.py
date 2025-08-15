@@ -145,26 +145,93 @@ app_license = "mit"
 # 	}
 # }
 
-# Scheduled Tasks
+# Scheduled Tasks - Dynamic ZKTeco Sync
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"zkteco_checkins_sync.tasks.all"
-# 	],
-# 	"daily": [
-# 		"zkteco_checkins_sync.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"zkteco_checkins_sync.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"zkteco_checkins_sync.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"zkteco_checkins_sync.tasks.monthly"
-# 	],
-# }
+def get_scheduler_events():
+    """
+    Dynamic scheduler that adjusts based on ZKTeco Config settings
+    """
+    import frappe
+    
+    # Get sync settings
+    try:
+        cfg = frappe.get_single("ZKTeco Config")
+        if not cfg.enable_sync:
+            return {}
+        
+        sync_seconds = int(cfg.seconds or 300)  # Default 5 minutes
+        
+        # Map seconds to cron expressions
+        sync_schedule = {}
+        
+        if sync_seconds <= 60:
+            # For frequent syncs (every minute or less), use cron for every minute
+            sync_schedule = {
+                "cron": {
+                    "* * * * *": [
+                        "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.scheduled_sync"
+                    ]
+                }
+            }
+        elif sync_seconds <= 300:  # 5 minutes
+            sync_schedule = {
+                "cron": {
+                    "*/5 * * * *": [
+                        "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+                    ]
+                }
+            }
+        elif sync_seconds <= 600:  # 10 minutes
+            sync_schedule = {
+                "cron": {
+                    "*/10 * * * *": [
+                        "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+                    ]
+                }
+            }
+        elif sync_seconds <= 900:  # 15 minutes
+            sync_schedule = {
+                "cron": {
+                    "*/15 * * * *": [
+                        "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+                    ]
+                }
+            }
+        elif sync_seconds <= 1800:  # 30 minutes
+            sync_schedule = {
+                "cron": {
+                    "*/30 * * * *": [
+                        "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+                    ]
+                }
+            }
+        else:  # 1 hour or more
+            sync_schedule = {
+                "hourly": [
+                    "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+                ]
+            }
+        
+        return sync_schedule
+        
+    except Exception as e:
+        frappe.log_error(f"Error in ZKTeco dynamic scheduler: {str(e)}", "ZKTeco Scheduler Error")
+        return {}
+
+# Apply dynamic scheduler
+scheduler_events = get_scheduler_events()
+
+# Fallback static scheduler for basic functionality
+if not scheduler_events:
+    scheduler_events = {
+        "all": [
+            "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.cleanup_scheduler_check"
+        ],
+        "hourly": [
+            "zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkteco_config.sync_zkteco_transactions"
+        ]
+    }
 
 # Testing
 # -------
@@ -241,4 +308,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
