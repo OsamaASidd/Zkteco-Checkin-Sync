@@ -52,8 +52,8 @@ bench --site your-site.com migrate
 
 #### Test Device Connectivity
 ```bash
-# Test if device is accessible
-curl -X GET "http://[DEVICE_IP]:[PORT]/iclock/api/transactions/"
+# Test if device is accessible using (Postman)
+curl -X GET "http://[Server_IP]:[Server_Port]/iclock/api/transactions/"
 ```
 
 ## Configuration
