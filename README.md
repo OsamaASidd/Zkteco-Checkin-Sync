@@ -304,7 +304,7 @@ frappe.call('zkteco_checkins_sync.zkteco_checkin_sync.doctype.zkteco_config.zkte
 ### Contact Support
 For technical support or feature requests:
 - Email: osama.ahmed@deliverydevs.com
-- GitHub: [Repository URL]
+- GitHub: [[Repository URL](https://github.com/OsamaASidd/Zkteco-Checkin-Sync) ]
 
 ## Changelog
 
